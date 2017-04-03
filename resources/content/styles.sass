@@ -12,6 +12,7 @@ a.material-icons
         color: map-get($mdc-theme-property-values, "text-primary-on-primary")
 
 main
+    padding-top: 1em
     width: 75vw
     margin-left: auto
     margin-right: auto
@@ -19,3 +20,7 @@ main
         @include mdc-typography(display2)
     h2
         @include mdc-typography(display1)
+    ul
+        @extend .mdc-list
+        li
+            @extend .mdc-list-item
