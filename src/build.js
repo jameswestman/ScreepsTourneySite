@@ -6,22 +6,102 @@ const fs = require('fs-promise');
 const sass = require('node-sass');
 const path = require('path');
 const nodeminify = require('node-minify');
+const markdownit = require('markdown-it');
 
-sass.render({
-  file: path.join(__dirname, "..", "resources", "sass", "styles.sass"),
-  includePaths: [ path.join(__dirname, "..", "node_modules") ],
-  outFile: path.join(__dirname, "..", "public_html", "styles.css")
-}, (err, result) => {
-    if(err) {
-        console.log(err);
+var markdown = new markdownit();
+
+// Replace the filename extension for the given file. TODO: Replace edge case
+// with files that have no extension
+function extension(file, ext) {
+    return file.substr(0, file.lastIndexOf(".")) + "." + ext;
+}
+
+var template = fs.readFileSync(path.join("resources", "template.htm"), { encoding: "utf8" });
+
+// Wrap the given html in the template.
+function wrapTemplate(html) {
+    // replace placeholder comment in template with actual content
+    var result = template.replace("<!--place-content-here-->", html);
+
+    // the html given should contain a title. if so, put that title in the template
+    var titleRegex = /(?:<|\()!--title(.+?)--(?:>|\))/g;
+    var title = titleRegex.exec(html);
+    if(title) result = result.replace("<!--place-title-here-->", title[1].trim()).replace(titleRegex, "");
+    else console.log(`[WARNING] That file does not have a title`);
+    return result;
+}
+
+function readFile(file, bin) {
+    return fs.readFile(file, bin ? {} : { encoding: "utf8" } );
+}
+
+/*
+ * Renders files from resources into browser-compatible formats. Does not
+ * include minification.
+ */
+function render(file) {
+    console.log("Rendering " + file);
+
+    if(file.endsWith(".md")) {
+        // render to HTML
+        return readFile(file)
+        .then(contents => ({ ext: "htm", data:  wrapTemplate(markdown.render(contents)) }));
+    } else if(file.endsWith(".sass") || file.endsWith(".scss")) {
+        // compile SASS and SCSS files (this project mostly uses SASS, but support SCSS just in case)
+        return new Promise((res, rej) => {
+            readFile(file)
+            .then(contents => {
+                sass.render({
+                    data: contents,
+                    includePaths: [ path.join("node_modules") ],
+                    indentedSyntax: file.endsWith(".sass")
+                }, (err, result) => {
+                    if(err) rej(err);
+                    else res({
+                        ext: "css",
+                        data: result.css
+                    });
+                });
+            });
+        });
+    } else if(file.endsWith(".htm") || file.endsWith(".html")) {
+        return readFile(file)
+        .then(contents => ({ ext: "htm", data: wrapTemplate(contents) }));
     } else {
-        fs.writeFile(path.join(__dirname, "..", "public_html", "styles.css"), result.css)
-        .then(() => {
-            return nodeminify.minify({
-                compressor: "clean-css",
-                input: path.join(__dirname, "..", "public_html", "styles.css"),
-                output: path.join(__dirname, "..", "public_html", "styles.css")
-            })
-        }).then(e => console.log("Finished compiling SASS"));
+        // read file, then return it without processing. Make sure it is read without text encoding, as this will corrupt images.
+        return readFile(file, true)
+        .then(contents => ({ ext: file.substr(file.lastIndexOf(".") + 1), data: contents }));
     }
-});
+}
+
+function processDir(dir) {
+    console.log("Processing directory " + dir);
+
+    var files;
+
+    fs.readdir(path.join("resources", dir))
+    .then(fileList => files = fileList)
+    .then(() => fs.mkdir(path.join("public_html", dir))
+        .catch(e => {
+            if(e.code !== "EEXIST") throw err;
+        })
+    ).then(() => {
+        files.forEach(filename => {
+            var file = path.join("resources", dir, filename);
+
+            fs.stat(file)
+            .then(stats => {
+                if(stats.isDirectory()) {
+                    processDir(path.join(dir, filename))
+                } else {
+                    render(file)
+                    .then(contents => {
+                        fs.writeFile(extension(path.join("public_html", dir, filename), contents.ext), contents.data);
+                    });
+                }
+            });
+        });
+    }).catch(e => console.log(e));
+}
+
+processDir("");

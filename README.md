@@ -4,6 +4,20 @@ Do you love automation? Programming? Competition? Of course you do! The Screeps 
 
 This repository is for the website. This is where people go to submit their code and view results. For the processor, see [this repository](https://github.com/FlyingPiMonster/ScreepsTourney).
 
+## Installation Instructions
+Eventually, this project will be hosted on a website. However, if you would like to test the server for yourself, follow these steps:
+
+1. Clone the project from GitHub: `git clone https://github.com/FlyingPiMonster/ScreepsTourneySite`
+2. `cd` into the directory
+3. Create a file called `config.json` and paste the following into it:
+        {
+            "host": "lvh.me",
+            "consolehost": "console.lvh.me",
+            "port": 8080
+        }
+3. Run `npm run build` to build the project. This compiles the SASS and Markdown files found in the `resources` directory into CSS and HTML, and wraps HTML files in a template.
+4. Run `npm run launch` to launch the server. By default, it will run on port 8080. The site only works on the `www` subdomain. To access it, go to `www.lvh.me:8080` in your browser.
+
 ## Challenge Overview
 
 Each challenge will consist of a Submission Period and a Processing Period. The Submission Period begins when the challenge is announced, and ends several weeks later. During this period, contestants may develop their code and upload it to the web interface. When the Submission Period ends, the Processing Period begins. The processor runs everybody's code, and the player who meets the winning condition of the challenge first (in the fewest ticks) wins.

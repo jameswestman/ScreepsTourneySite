@@ -1,0 +1,21 @@
+@import "material-components-web/material-components-web"
+
+.material-icons
+    padding-right: 16px
+
+a.material-icons
+    cursor: pointer
+
+.mdc-toolbar
+    a
+        text-decoration: none
+        color: map-get($mdc-theme-property-values, "text-primary-on-primary")
+
+main
+    width: 75vw
+    margin-left: auto
+    margin-right: auto
+    h1
+        @include mdc-typography(display2)
+    h2
+        @include mdc-typography(display1)
