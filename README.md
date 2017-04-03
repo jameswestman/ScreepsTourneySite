@@ -2,7 +2,7 @@
 
 Do you love automation? Programming? Competition? Of course you do! The Screeps Tourney is a coding competition based around [Screeps](https://screeps.com), "the world's first MMO strategy sandbox game for programmers."
 
-This repository is for the website. This is where people go to submit their code and view results. For the processor, see [this repository](https://github.com/FlyingPiMonster/ScreepsTourney).
+This repository is for the website. This is where people go to submit their code and view results. For the processor, see [this repository](https://github.com/FlyingPiMonster/ScreepsTourney). For the challenge files, see [this repository](https://github.com/FlyingPiMonster/ScreepsTourneyChallenges).
 
 ## Installation Instructions
 Eventually, this project will be hosted on a website. However, if you would like to test the server for yourself, follow these steps:
@@ -13,10 +13,16 @@ Eventually, this project will be hosted on a website. However, if you would like
         {
             "host": "lvh.me",
             "consolehost": "console.lvh.me",
-            "port": 8080
+            "port": 8080,
+            "paths": {
+                "data": "data",
+                "challenges": "challenges"
+            }
         }
-3. Run `npm run build` to build the project. This compiles the SASS and Markdown files found in the `resources` directory into CSS and HTML, and wraps HTML files in a template.
-4. Run `npm run launch` to launch the server. By default, it will run on port 8080. The site only works on the `www` subdomain. To access it, go to `www.lvh.me:8080` in your browser.
+4. Create a directory called `data`. Leave it empty. This is where user data is stored.
+5. Run `git clone https://github.com/FlyingPiMonster/ScreepsTourneyChallenges challenges` to download the challenge files from GitHub and put them in the `challenges` directory. To update them, run `git pull` from inside the directory.
+6. Run `npm run build` to build the project. This compiles the SASS and Markdown files found in the `resources` directory into CSS and HTML, and wraps HTML files in a template.
+7. Run `npm run launch` to launch the server. By default, it will run on port 8080. The site only works on the `www` subdomain. To access it, go to `www.lvh.me:8080` in your browser.
 
 ## Challenge Overview
 
