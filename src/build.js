@@ -7,8 +7,11 @@ const sass = require('node-sass');
 const path = require('path');
 const nodeminify = require('node-minify');
 const markdownit = require('markdown-it');
+const os = require('os');
 
 var markdown = new markdownit();
+
+var config = require("../config.json");
 
 // Replace the filename extension for the given file. TODO: Replace edge case
 // with files that have no extension
@@ -83,7 +86,7 @@ function processDir(dir) {
     .then(fileList => files = fileList)
     .then(() => fs.mkdir(path.join("public_html", dir))
         .catch(e => {
-            if(e.code !== "EEXIST") throw err;
+            if(e.code !== "EEXIST") throw e;
         })
     ).then(() => {
         files.forEach(filename => {
@@ -105,3 +108,34 @@ function processDir(dir) {
 }
 
 processDir("");
+
+// now process challenges
+var challenges = require(path.join(__dirname, "..", config.paths.challenges, "index.json"));
+for(let challenge of challenges) {
+    console.log("Processing challenge " + challenge)
+
+    // make directory if needed
+    fs.mkdir(path.join("public_html", "content", "challenges", challenge))
+    .catch(e => {
+        if(e.code !== "EEXIST") throw e;
+    })
+    .then(() => render(path.join(config.paths.challenges, challenge, "index.md"))) // render the index file
+    .then(contents => {
+        fs.writeFile(path.join("public_html", "content", "challenges", challenge, "index.htm"), contents.data);
+    })
+    .then(() => render(path.join(config.paths.challenges, challenge, "rules.md"))) // now render the rules file
+    .then(contents => {
+        fs.writeFile(path.join("public_html", "content", "challenges", challenge, "rules.htm"), contents.data);
+    });
+}
+
+// create an index file for the challenges, then render it
+var challengeIndex =
+`(!--title Previous Challenges--)
+# Previous Challenges
+Here's all the previous challenges and their results:` + os.EOL;
+for(let challenge of challenges) {
+    challengeIndex += `- [${ challenge }](${ challenge }/index.htm)`;
+}
+
+fs.writeFile(path.join("public_html", "content", "challenges", "index.htm"), wrapTemplate(markdown.render(challengeIndex)));

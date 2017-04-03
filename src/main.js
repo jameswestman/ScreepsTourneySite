@@ -9,13 +9,19 @@ const yargs = require('yargs');
 
 var args = yargs();
 
-var config;
+var config, challenges;
 
 // load config file
 fs.readFile("config.json", { encoding: "utf8"})
 .then(file => {
     return config = JSON.parse(file);
-}).then(config => require("./index.js")(config)
+}).then(cfg => {
+    // load challenge index from location specified by config file
+    return fs.readFile(path.join(cfg.paths.challenges, "index.json"), { encoding: "utf8" })
+    .then(file => {
+        challenges = JSON.parse(file);
+    });
+}).then(() => require("./index.js")(config) // load the web app
 ).then(app => {
     if(config.https) {
         const https = require("https");

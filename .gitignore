@@ -38,3 +38,5 @@ jspm_packages
 
 public_html
 config.json
+data
+challenges
