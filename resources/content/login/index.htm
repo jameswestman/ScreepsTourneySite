@@ -1,0 +1,35 @@
+<!--title Signup-->
+
+<h1>Login to the Screeps Tournament</h1>
+
+<form action="/login-process" method="POST">
+    <div class="mdc-textfield" id="email-wrapper">
+        <input type="email" class="mdc-textfield__input" id="email"
+            name="email" aria-controls="email-validation"
+            autocomplete="email">
+        <label for="email" class="mdc-textfield__label">Email Address</label>
+    </div>
+
+    <br />
+
+    <div class="mdc-textfield" id="password-wrapper">
+        <input type="password" class="mdc-textfield__input" id="password"
+            name="password" aria-controls="password-validation">
+        <label for="password" class="mdc-textfield__label">Password</label>
+    </div>
+    <br />
+    <input type="submit" class="mdc-button mdc-button--accent mdc-button--raised" value="Log In"/>
+</form>
+
+<script type="text/javascript">
+    const MDCTextfield = mdc.textfield.MDCTextfield;
+    const MDCTextfieldFoundation = mdc.textfield.MDCTextfieldFoundation;
+
+    var emailElement = document.getElementById("email");
+    var emailWrapper = document.getElementById("email-wrapper");
+    var email = new MDCTextfield(emailWrapper);
+
+    var passwordElement = document.getElementById("password");
+    var passwordWrapper = document.getElementById("password-wrapper");
+    var password = new MDCTextfield(passwordWrapper);
+</script>

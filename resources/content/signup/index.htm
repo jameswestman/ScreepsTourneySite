@@ -1,0 +1,82 @@
+<!--title Signup-->
+
+<h1>Sign Up for the Screeps Tournament</h1>
+
+
+<aside class="half-size-aside">
+    <p>
+        Once you sign up for an account, you can submit entries to the current
+        contest (if one is going on). You do not need to sign up if you only
+        want to spectate.
+    </p>
+</aside>
+<form action="/signup-process" method="POST">
+    <div class="mdc-textfield" id="email-wrapper">
+        <input type="email" class="mdc-textfield__input" id="email"
+            name="email" aria-controls="email-validation"
+            autocomplete="email">
+        <label for="email" class="mdc-textfield__label">Email Address</label>
+    </div>
+    <p id="email-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
+    Please enter a valid email address
+    </p>
+
+    <div class="mdc-textfield" id="username-wrapper">
+        <input type="text" class="mdc-textfield__input" id="username"
+            name="username" aria-controls="username-validation"
+            pattern="^[a-z][a-z0-9_-]{2,20}$">
+        <label for="username" class="mdc-textfield__label">Username</label>
+    </div>
+    <p id="username-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
+    Username must match <code>/^[a-z][a-z0-9_-]{2,20}$/</code>
+    </p>
+
+    <div class="mdc-textfield" id="password1-wrapper">
+        <input type="password" class="mdc-textfield__input" id="password1"
+            name="password" aria-controls="password1-validation">
+        <label for="password1" class="mdc-textfield__label">Password</label>
+    </div>
+    <p id="password1-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
+    Password must be 8-72 characters. Choose wisely.
+    </p>
+
+    <div class="mdc-textfield" id="password2-wrapper">
+        <input type="password" class="mdc-textfield__input" id="password2"
+            aria-controls="password1-validation">
+        <label for="password2" class="mdc-textfield__label">Password</label>
+    </div>
+    <p id="password2-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
+    Passwords must match
+    </p>
+
+    <input type="submit" class="mdc-button mdc-button--accent mdc-button--raised" value="Create Account"/>
+</form>
+
+<script type="text/javascript">
+    const MDCTextfield = mdc.textfield.MDCTextfield;
+    const MDCTextfieldFoundation = mdc.textfield.MDCTextfieldFoundation;
+
+    var emailElement = document.getElementById("email");
+    var emailWrapper = document.getElementById("email-wrapper");
+    var email = new MDCTextfield(emailWrapper);
+
+    var usernameElement = document.getElementById("username");
+    var usernameWrapper = document.getElementById("username-wrapper");
+    var username = new MDCTextfield(usernameWrapper);
+
+    var password1Element = document.getElementById("password1");
+    var password1Wrapper = document.getElementById("password1-wrapper");
+    var password1 = new MDCTextfield(password1Wrapper);
+
+    var password2Element = document.getElementById("password2");
+    var password2Wrapper = document.getElementById("password2-wrapper");
+    var password2 = new MDCTextfield(password2Wrapper);
+
+    password2Element.addEventListener("change", event => {
+        if(password2Element.value != password1Element.value) {
+            password2Element.setCustomValidity("invalid");
+        } else {
+            password2Element.setCustomValidity("");
+        }
+    });
+</script>
