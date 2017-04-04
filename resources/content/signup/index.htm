@@ -14,7 +14,7 @@
     <div class="mdc-textfield" id="email-wrapper">
         <input type="email" class="mdc-textfield__input" id="email"
             name="email" aria-controls="email-validation"
-            autocomplete="email">
+            autocomplete="email" required>
         <label for="email" class="mdc-textfield__label">Email Address</label>
     </div>
     <p id="email-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
@@ -24,7 +24,7 @@
     <div class="mdc-textfield" id="username-wrapper">
         <input type="text" class="mdc-textfield__input" id="username"
             name="username" aria-controls="username-validation"
-            pattern="^[a-z][a-z0-9_-]{2,20}$">
+            pattern="^[a-z][a-z0-9_-]{2,20}$" required>
         <label for="username" class="mdc-textfield__label">Username</label>
     </div>
     <p id="username-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
@@ -33,7 +33,7 @@
 
     <div class="mdc-textfield" id="password1-wrapper">
         <input type="password" class="mdc-textfield__input" id="password1"
-            name="password" aria-controls="password1-validation">
+            name="password" aria-controls="password1-validation" required>
         <label for="password1" class="mdc-textfield__label">Password</label>
     </div>
     <p id="password1-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
@@ -42,7 +42,7 @@
 
     <div class="mdc-textfield" id="password2-wrapper">
         <input type="password" class="mdc-textfield__input" id="password2"
-            aria-controls="password1-validation">
+            aria-controls="password1-validation" required>
         <label for="password2" class="mdc-textfield__label">Password</label>
     </div>
     <p id="password2-validation" class="mdc-textfield-helptext mdc-textfield-helptext--validation-msg">
