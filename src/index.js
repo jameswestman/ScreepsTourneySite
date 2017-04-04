@@ -23,6 +23,10 @@ module.exports = function(config, competition) {
         }
     }
 
+    app.use(bodyParser.urlencoded({
+        extended: false
+    }))
+
     app.use(vhost(`www.${ config.host }`, require("./www/www.js")(common)));
     app.use(vhost(`api.${ config.host }`, require("./api/api.js")(common)));
     app.use(vhost(`viewer.${ config.host }`, require("./viewer/viewer.js")(common)));

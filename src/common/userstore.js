@@ -5,45 +5,44 @@ const _ = require('lodash');
 
 const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const nameRegex = /^[a-z][a-z0-9_-]{2,20}$/;
-const passRegex = /^.{8-72}$/;
+const passRegex = /^.{8,72}$/;
 
-function User(id) {
-    this._data = userstore.users[id];
+function User(data) {
+    this.name = data.name;
+    this.email = data.email;
+    this._password = data.password;
 }
 
 // Returns a promise
 User.prototype.checkPassword = function(inputPass) {
-    return bcrypt.compare(inputPass, this._data.pass);
+    return bcrypt.compare(inputPass, this._password);
 };
-Object.defineProperty(User.prototype, "name", {
-    get: () => this._data.name
-});
-Object.defineProperty(User.prototype, "email", {
-    get: () => this._data.email
-});
 
-function Userstore(data) {
+function Userstore(common, data) {
+    this._common = common;
     this._users = data;
-    this._byUsername = _.keyBy(data.users, user => user.name);
-    this._byEmail = _.keyBy(data.users, user => user.email);
+    this._byUsername = _.keyBy(data, "name");
+    this._byEmail = _.keyBy(data, "email");
+    console.log(this._byUsername);
 }
 
-Userstore.prototype.registerUser = function () {
+Userstore.prototype.registerUser = function(formdata) {
     var email = formdata.email;
-    var name = formdata.name;
+    var name = formdata.username;
     var password = formdata.password;
 
-    // validate input
-    if(!emailRegex.test(email)) throw "Please enter a valid email address";
-    if(!nameRegex.test(name)) throw "Please enter a valid username";
-    if(!passRegex.test(password)) throw "Please enter a password that is 8 to 72 characters";
+    return new Promise((resolve, reject) => {
+        // validate input
+        if(!emailRegex.test(email)) reject(this._common.consts.AUTH_ERR_INVALID_EMAIL);
+        if(!nameRegex.test(name)) reject(this._common.consts.AUTH_ERR_INVALID_USERNAME);
+        if(!passRegex.test(password)) reject(this._common.consts.AUTH_ERR_INVALID_PASSWORD);
 
-    // make sure both email and username are unique
-    if(this.getUserByName(name)) throw "Sorry, that username is taken";
-    if(this.getUserByEmail(email)) throw "Someone has already created an account with that email address";
+        // make sure both email and username are unique
+        if(this.getUserByName(name)) reject(this._common.consts.AUTH_ERR_USERNAME_TAKEN);
+        if(this.getUserByEmail(email)) reject(this._common.consts.AUTH_ERR_EMAIL_IN_USE);
 
-    // hash password, then continue
-    bcrypt.hash(password, 13)
+        resolve();
+    }).then(() => bcrypt.hash(password, 13))
     .then(passhash => {
         // add the user to the database
         var id;
@@ -52,22 +51,25 @@ Userstore.prototype.registerUser = function () {
         } while(this._users[id]);
 
         var user = {
-            "e": email,
-            "n": name,
-            "p": passhash
+            email: email,
+            name: name,
+            password: passhash,
+            id: id
         };
 
         this._users[id] = this._byUsername[name] = this._byEmail[email] = user;
+        this.markedDirty = true;
+        return this.getUser(id);
     });
 };
-Userstore.prototype.getUser = function() {
-    return new User(id);
+Userstore.prototype.getUser = function(id) {
+    if(this._users[id]) return new User(this._users[id]);
 };
 Userstore.prototype.getUserByName = function(name) {
-    return byUsername[name];
+    if(this._byUsername[name]) return new User(this._byUsername[name]);
 };
 Userstore.prototype.getUserByEmail = function(email) {
-    return byEmail[email];
+    if(this._byEmail[email]) return new User(this._byEmail[email]);
 };
 
 module.exports = Userstore;

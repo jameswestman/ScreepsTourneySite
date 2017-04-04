@@ -11,6 +11,8 @@
     </p>
 </aside>
 <form action="/signup-process" method="POST">
+    <div class="login-error" id="error" style="display: none">
+    </div>
     <div class="mdc-textfield" id="email-wrapper">
         <input type="email" class="mdc-textfield__input" id="email"
             name="email" aria-controls="email-validation"
@@ -79,4 +81,21 @@
             password2Element.setCustomValidity("");
         }
     });
+
+    var querystring = window.location.search.substring(1);
+    var vars = querystring.split("&");
+    for(let v of vars) {
+        if(v.startsWith("error=")) {
+            var error = v.substring("error=".length);
+            var bar = document.getElementById("error");
+            bar.innerHTML = {
+                auth_error_invalid_email: "Please enter a valid email address.",
+                auth_error_invalid_username: "Please enter a valid username.",
+                auth_error_invalid_password: "Please enter a valid password.",
+                auth_error_username_taken: "Sorry, someone has already taken that username.",
+                auth_error_email_in_use: "You may only sign up for one account."
+            }[error];
+            bar.style.display = "block";
+        }
+    }
 </script>

@@ -2,9 +2,24 @@
 
 const express = require('express');
 const path = require('path');
+const AuthModule = require("./auth.js");
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
 
 module.exports = function(common) {
     var app = new express.Router();
+    var auth = new AuthModule(common);
+
+    var cookieSecret = bcrypt.genSaltSync();
+
+    app.use(session({
+        secret: cookieSecret,
+        secure: common.config.https ? true : false,
+        saveUninitialized: false,
+        resave: false
+    }));
+    app.use(cookieParser(cookieSecret));
 
     app.use(express.static(path.join("public_html", "content"), { index: "index.htm"}));
     app.use(express.static(path.join("node_modules", "material-components-web", "dist")));
@@ -25,6 +40,14 @@ module.exports = function(common) {
             res.sendFile(path.join(__dirname, "..", "..", "public_html", "homepages", "normal.htm"));
         }
     });
+
+    app.post("/signup-process", (req, res) => {
+        auth.signup(req, res)
+    });
+    app.post("/login-process", (req, res) => {
+        auth.login(req, res)
+    });
+
     app.use((err, req, res, next) => {
         res.status(500).sendFile(path.join(__dirname, "..", "..", "public_html", "errors", "500.htm"));
         console.log(err, err.stack);

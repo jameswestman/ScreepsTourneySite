@@ -3,6 +3,8 @@
 <h1>Login to the Screeps Tournament</h1>
 
 <form action="/login-process" method="POST">
+    <div class="login-error" id="error" style="display: none">
+    </div>
     <div class="mdc-textfield" id="email-wrapper">
         <input type="email" class="mdc-textfield__input" id="email"
             name="email" aria-controls="email-validation"
@@ -32,4 +34,15 @@
     var passwordElement = document.getElementById("password");
     var passwordWrapper = document.getElementById("password-wrapper");
     var password = new MDCTextfield(passwordWrapper);
+
+    var querystring = window.location.search.substring(1);
+    var vars = querystring.split("&");
+    for(let v of vars) {
+        if(v.startsWith("error=")) {
+            var error = v.substring("error=".length);
+            var bar = document.getElementById("error");
+            bar.innerHTML = "Username or password is incorrect.";
+            bar.style.display = "block";
+        }
+    }
 </script>
