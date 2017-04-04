@@ -1,6 +1,8 @@
 "use strict";
 
 const express = require('express');
-const app = new express.Router();
 
-module.exports = app;
+module.exports = function(common) {
+    var app = new express.Router();
+    return app;
+};

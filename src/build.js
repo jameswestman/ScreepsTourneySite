@@ -135,7 +135,7 @@ var challengeIndex =
 # Previous Challenges
 Here's all the previous challenges and their results:` + os.EOL;
 for(let challenge of challenges) {
-    challengeIndex += `- [${ challenge }](${ challenge }/index.htm)`;
+    challengeIndex += `- [${ challenge }](${ challenge }/)`;
 }
 
 fs.writeFile(path.join("public_html", "content", "challenges", "index.htm"), wrapTemplate(markdown.render(challengeIndex)));
