@@ -24,18 +24,22 @@ module.exports = function(common) {
     app.use(cookieParser(cookieSecret));
 
     app.get("/code-submit", (req, res) => {
-        if(common.challenge && common.challenge.isSubmissionTime()) {
-            csrf.token(req)
-            .then(token =>
-                template(path.join("public_html", "misc", "submitcode.htm"), {
-                    "<!--place-csrf-token-here-->": token,
-                    "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules)
-                })
-            ).then(html => {
-                res.type("text/html").send(html);
-            });
+        if(!req.session.user) {
+            res.redirect("/login")
         } else {
-            res.status(404).sendFile(path.join(__dirname, "..", "..", "public_html", "errors", "404.htm"));
+            if(common.challenge && common.challenge.isSubmissionTime()) {
+                csrf.token(req)
+                .then(token =>
+                    template(path.join("public_html", "misc", "submitcode.htm"), {
+                        "<!--place-csrf-token-here-->": token,
+                        "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules)
+                    })
+                ).then(html => {
+                    res.type("text/html").send(html);
+                });
+            } else {
+                res.status(404).sendFile(path.join(__dirname, "..", "..", "public_html", "errors", "404.htm"));
+            }
         }
     });
 
