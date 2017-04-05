@@ -27,7 +27,7 @@ module.exports = function(common) {
         if(common.challenge && common.challenge.isSubmissionTime()) {
             csrf.token(req)
             .then(token =>
-                template(path.join("public_html", "content", "submitcode.htm"), {
+                template(path.join("public_html", "misc", "submitcode.htm"), {
                     "<!--place-csrf-token-here-->": token,
                     "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules)
                 })
