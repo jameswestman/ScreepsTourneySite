@@ -5,7 +5,6 @@ const path = require('path');
 const AuthModule = require("./auth.js");
 const session = require('express-session');
 const bcrypt = require('bcrypt');
-const cookieParser = require('cookie-parser');
 const template = require("./template.js");
 const csrf = require('./csrf.js');
 
@@ -21,7 +20,6 @@ module.exports = function(common) {
         saveUninitialized: false,
         resave: false
     }));
-    app.use(cookieParser(cookieSecret));
 
     app.get("/code-submit", (req, res) => {
         if(!req.session.user) {
@@ -32,7 +30,8 @@ module.exports = function(common) {
                 .then(token =>
                     template(path.join("public_html", "misc", "submitcode.htm"), {
                         "<!--place-csrf-token-here-->": token,
-                        "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules)
+                        "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules),
+                        "<!--place-username-here-->": req.session.user.name
                     })
                 ).then(html => {
                     res.type("text/html").send(html);

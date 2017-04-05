@@ -19,7 +19,7 @@
             <section class="mdc-toolbar__section mdc-toolbar__section--align-end" id="signin-buttons">
                 <a class="mdc-button mdc-button--accent" data-mdc-auto-init="MDCRipple" id="login" href="/login">Log In</a>
                 <a class="mdc-button mdc-button--accent mdc-button--raised" data-mdc-auto-init="MDCRipple" id="signin" href="/signup">Sign Up</a>
-                <span id="username"></span>
+                <span id="username"><!--place-username-here--></span>
             </section>
         </header>
 
@@ -45,16 +45,9 @@
 
         <script src="/material-components-web.min.js"></script>
         <script>
-            if(document.cookie) {
-                var cookies = document.cookie.split(";");
-                for(let c of cookies) {
-                    if(c.startsWith("name=")) {
-                        var name = c.substring("name=".length);
-                        document.getElementById("login").style.display = "none";
-                        document.getElementById("signin").style.display = "none";
-                        document.getElementById("username").innerText = name;
-                    }
-                }
+            if(document.getElementById("username").innerText) {
+                document.getElementById("signin").style.display = "none";
+                document.getElementById("login").style.display = "none";
             }
             window.mdc.autoInit();
 

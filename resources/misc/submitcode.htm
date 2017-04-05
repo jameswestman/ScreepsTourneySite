@@ -2,36 +2,39 @@
 
 <h1>Submit Code</h1>
 
-<form method="post">
+<form method="post" action="/code-submit-process">
     <input type="hidden" name="CSRFToken" value="<!--place-csrf-token-here-->" />
     <h2>Upload Code</h2>
     <input type="file" name="files[]" id="files" multiple/>
 
     <section id="mineral-select-wrapper" style="display: none">
         <h2>Choose Mineral</h2>
+
+        <input type="hidden" name="mineral" id="mineral-input"/>
+
         <div class="mdc-select" id="mineral-select" role="listbox" tabindex="0">
             <span class="mdc-select__selected-text">Pick a mineral for your room:</span>
             <div class="mdc-simple-menu mdc-select__menu">
                 <ul class="mdc-list mdc-simple-menu__items">
-                    <li class="mdc-list-item" role="option" id="hydrogen" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="H" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/H.png"/>Hydrogen
                     </li>
-                    <li class="mdc-list-item" role="option" id="oxygen" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="O" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/O.png"/>Oxygen
                     </li>
-                    <li class="mdc-list-item" role="option" id="keanium" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="K" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/K.png"/>Keanium
                     </li>
-                    <li class="mdc-list-item" role="option" id="lemergium" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="L" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/L.png"/>Lemergium
                     </li>
-                    <li class="mdc-list-item" role="option" id="utrium" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="U" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/U.png"/>Utrium
                     </li>
-                    <li class="mdc-list-item" role="option" id="zynthium" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="Z" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/Z.png"/>Zynthium
                     </li>
-                    <li class="mdc-list-item" role="option" id="catalyst" tabindex="0">
+                    <li class="mdc-list-item" role="option" id="X" tabindex="0">
                         <img class="material-icons mdc-list-item__start-detail" aria-hidden="true" src="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/X.png"/>Catalyst
                     </li>
                 </ul>
@@ -44,6 +47,8 @@
 
     <div id="room-layout-wrapper" class="room-layout-input">
         <h2>Choose Spawn Location</h2>
+        <input type="hidden" name="spawn-x" id="spawn-x" />
+        <input type="hidden" name="spawn-y" id="spawn-y" />
     </div>
 
     <br />
@@ -51,7 +56,6 @@
 </form>
 
 <script type="text/javascript">
-
 function createLayoutChooser(layout, objects) {
     var table = document.createElement("table");
     var tr1 = document.createElement("tr");
@@ -80,6 +84,9 @@ function createLayoutChooser(layout, objects) {
                 var oldSelection = table.querySelector(".room-layout-selected");
                 if(oldSelection) oldSelection.classList.remove("room-layout-selected");
                 event.target.classList.add("room-layout-selected");
+
+                document.getElementById("spawn-x").value = x;
+                document.getElementById("spawn-y").value = y;
             });
 
             for(let obj of objects) {
@@ -108,4 +115,8 @@ if(!challengeRules.disallowChooseSpawn) {
 
 var MDCSelect = mdc.select.MDCSelect;
 const select = new MDCSelect(document.getElementById('mineral-select'));
+
+select.listen('MDCSelect:change', () => {
+    document.getElementById("mineral-input").value = select.value;
+});
 </script>
