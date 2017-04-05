@@ -23,7 +23,6 @@ function Userstore(common, data) {
     this._users = data;
     this._byUsername = _.keyBy(data, "name");
     this._byEmail = _.keyBy(data, "email");
-    console.log(this._byUsername);
 }
 
 Userstore.prototype.registerUser = function(formdata) {

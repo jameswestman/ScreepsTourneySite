@@ -6,6 +6,8 @@ const AuthModule = require("./auth.js");
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const template = require("./template.js");
+const csrf = require('./csrf.js');
 
 module.exports = function(common) {
     var app = new express.Router();
@@ -20,6 +22,22 @@ module.exports = function(common) {
         resave: false
     }));
     app.use(cookieParser(cookieSecret));
+
+    app.get("/code-submit", (req, res) => {
+        if(common.challenge && common.challenge.isSubmissionTime()) {
+            csrf.token(req)
+            .then(token =>
+                template(path.join("public_html", "content", "submitcode.htm"), {
+                    "<!--place-csrf-token-here-->": token,
+                    "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules)
+                })
+            ).then(html => {
+                res.type("text/html").send(html);
+            });
+        } else {
+            res.status(404).sendFile(path.join(__dirname, "..", "..", "public_html", "errors", "404.htm"));
+        }
+    });
 
     app.use(express.static(path.join("public_html", "content"), { index: "index.htm"}));
     app.use(express.static(path.join("node_modules", "material-components-web", "dist")));

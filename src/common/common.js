@@ -2,7 +2,20 @@
 
 const EventEmitter = require('events');
 const Database = require("./db.js");
+const fs = require('fs-promise');
+const path = require('path');
 
+function Challenge(dir) {
+    this._data = JSON.parse(fs.readFileSync(path.join(dir, "info.json"), { encoding: "utf8" }));
+    this.rules = this._data.rules;
+}
+
+Challenge.prototype.isSubmissionTime = function() {
+    var now = new Date().getTime() / 1000;
+    return now > this._data.times.submission && now < this._data.times.processing;
+};
+
+// this function contains blocking file io
 function Common(config) {
     // The config file
     this.config = config;
@@ -11,6 +24,11 @@ function Common(config) {
     this.notificationEmitter = new EventEmitter();
 
     this.db = new Database(this, config.paths.data);
+
+    var challenges = JSON.parse(fs.readFileSync(path.join(config.paths.challenges, "index.json")));
+    if(challenges[0]) {
+        this.challenge = new Challenge(path.join(config.paths.challenges, challenges[0]));
+    }
 }
 
 Object.defineProperty(Common.prototype, "consts", {

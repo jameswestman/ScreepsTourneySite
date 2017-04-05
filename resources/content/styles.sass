@@ -25,9 +25,39 @@ main
         li
             @extend .mdc-list-item
 
+form
+    width: 50%
+
+    .mdc-select
+        width: 66% !important
+    .mdc-textfield
+        width: 66% !important
+
 .half-size-aside
     width: 50%
     float: right
 
 .login-error
     width: 50%
+
+.room-layout-input
+    table
+        border: none
+        border-spacing: 0
+
+    td
+        border: 1px solid #AAA
+        min-width: 15px
+        min-height: 15px
+
+    .room-layout-wall
+        background-color: black
+
+    .room-layout-swamp
+        background-color: green
+
+    .room-layout-plain
+        background-color: gray
+
+        &:hover
+            background-color: yellow
