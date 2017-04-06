@@ -13,3 +13,4 @@ Server configuration is stored in `config.json`. This file is not included by de
 - **paths** _required_ Paths to important locations. Relative paths will be evaluated relative to the install directory of the server
     - **data** _required_ The path to a directory to store data
     - **challenges** _required_ The path to the directory containing the challenges
+- **apiPassword** _required_ BCrypt hashed password for the internal API
