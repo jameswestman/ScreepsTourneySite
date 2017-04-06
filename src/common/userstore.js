@@ -6,16 +6,41 @@ const _ = require('lodash');
 const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const nameRegex = /^[a-z][a-z0-9_-]{2,20}$/;
 const passRegex = /^.{8,72}$/;
+const fs = require('fs-promise');
+const path = require('path');
 
-function User(data) {
+function User(common, data) {
     this.name = data.name;
     this.email = data.email;
+    this.id = data.id;
     this._password = data.password;
+    this._common = common;
 }
 
 // Returns a promise
 User.prototype.checkPassword = function(inputPass) {
     return bcrypt.compare(inputPass, this._password);
+};
+User.prototype.enter = function(entry) {
+    var common = this._common;
+
+    if(!common.challenge) throw "No challenge is going on";
+
+    // make sure all the directories have been created
+    return fs.mkdir(path.join(common.config.paths.data, "challenges"))
+    .catch(err => {
+        if(err.code !== "EEXIST") throw err;
+    }).then(() => fs.mkdir(path.join(common.config.paths.data, "challenges", common.challenge.name)) )
+    .catch(err => {
+        if(err.code !== "EEXIST") throw err;
+    }).then(() => fs.mkdir(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries")) )
+    .catch(err => {
+        if(err.code !== "EEXIST") throw err;
+    })
+    // write the submission file
+    .then(() => {
+        fs.writeFile(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries", this.id + ".json"), JSON.stringify(entry))
+    });
 };
 
 function Userstore(common, data) {
@@ -62,13 +87,13 @@ Userstore.prototype.registerUser = function(formdata) {
     });
 };
 Userstore.prototype.getUser = function(id) {
-    if(this._users[id]) return new User(this._users[id]);
+    if(this._users[id]) return new User(this._common, this._users[id]);
 };
 Userstore.prototype.getUserByName = function(name) {
-    if(this._byUsername[name]) return new User(this._byUsername[name]);
+    if(this._byUsername[name]) return new User(this._common, this._byUsername[name]);
 };
 Userstore.prototype.getUserByEmail = function(email) {
-    if(this._byEmail[email]) return new User(this._byEmail[email]);
+    if(this._byEmail[email]) return new User(this._common, this._byEmail[email]);
 };
 
 module.exports = Userstore;

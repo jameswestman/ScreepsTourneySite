@@ -8,29 +8,50 @@ const bcrypt = require('bcrypt');
 const template = require("./template.js");
 const csrf = require('./csrf.js');
 const send = require('send');
+const multer = require('multer');
 
 module.exports = function(common) {
     var app = new express.Router();
     var auth = new AuthModule(common);
 
+    var storage = multer.memoryStorage();
+    var upload = multer({
+        storage: storage,
+        limits: {
+            fileSize: 100000,
+            files: 100
+        },
+        fileFilter: (req, file, cb) => {
+            if(!file.originalname.endsWith(".js")) cb(null, false);
+            cb(null, true);
+        }
+    });
+
     var cookieSecret = bcrypt.genSaltSync();
+
+    app.use(express.static(path.join("public_html", "static"), { index: "index.htm"}));
+    app.use(express.static(path.join("node_modules", "material-components-web", "dist")));
 
     app.use(session({
         secret: cookieSecret,
         secure: common.config.https ? true : false,
         saveUninitialized: false,
-        resave: false
+        resave: false,
     }));
 
-    app.use(express.static(path.join("public_html", "static"), { index: "index.htm"}));
-    app.use(express.static(path.join("node_modules", "material-components-web", "dist")));
+    app.use((req, res, next) => {
+        if(req.session.userid) {
+            req.sessionuser = common.db.users.getUser(req.session.userid);
+        }
+        next();
+    });
 
     app.get("/", (req, res) => {
         // send correct homepage
-        if(common.competition) {
-            if(competition.isSubmissionTime()) {
+        if(common.challenge) {
+            if(common.challenge.isSubmissionTime()) {
                 // send the competition homepage. it contains the countdown info already and will activate it automatically at the correct time
-                template(req, path.join("competitions", competition.name, "index.htm")).then(file => res.type("text/html").send(file));
+                template(req, path.join("challenges", common.challenge.name, "index.htm")).then(file => res.type("text/html").send(file));
             } else {
                 // don't display the page yet if the submission period hasn't started
                 template(req, "homepage.htm").then(file => res.type("text/html").send(file));
@@ -56,7 +77,7 @@ module.exports = function(common) {
     });
 
     app.get("/code-submit", (req, res) => {
-        if(!req.session.user) {
+        if(!req.sessionuser) {
             res.redirect("/login")
         } else {
             if(common.challenge && common.challenge.isSubmissionTime()) {
@@ -74,11 +95,59 @@ module.exports = function(common) {
             }
         }
     });
+    app.post("/code-submit-process", upload.array("files", 100), (req, res) => {
+        if(!req.sessionuser) {
+            res.redirect("/login");
+        }
+        if(!common.challenge || !common.challenge.isSubmissionTime()) {
+            res.redirect("/");
+        }
+
+        // create JSON array of file contents
+        var code = {};
+        for(let file of req.files) {
+            code[file.originalname] = file.buffer.toString("utf8");
+        }
+
+        // now get the rest of the fields
+        var challenge = common.challenge;
+        var settings = {};
+        if(challenge.rules.allowChooseMineral) {
+            settings.mineral = req.body.mineral || "H";
+        }
+        if(!challenge.rules.disallowChooseSpawn) {
+            settings.spawn = {
+                x: req.body["spawn-x"],
+                y: req.body["spawn-y"]
+            }
+        }
+
+        var entry = {
+            code: code,
+            settings: settings
+        }
+
+        req.sessionuser.enter(entry)
+        .then(() => {
+            res.redirect("/submission-complete");
+        }).catch(err => {
+            res.status(500).sendFile(path.join(__dirname, "..", "..", "public_html", "errors", "500.htm"));
+            console.log(err);
+        });
+    });
+    app.get("/submission-complete", (req, res) => {
+        template(req, "submissioncomplete.htm").then(file => res.type("text/html").send(file));
+    });
 
     app.get("/challenges", (req, res) => {
         template(req, path.join("challenges", "index.htm")).then(file => res.type("text/html").send(file));
     });
     app.get("/challenges/:challenge", (req, res) => {
+        if(req.params.challenge === "..") {
+            // malicious url
+            res.status(403).send("forbidden");
+            console.log("malicious URL!")
+        }
         template(req, path.join("challenges", req.params.challenge, "index.htm")).then(file => res.type("text/html").send(file));
     });
     app.get("/challenges/:challenge/rules", (req, res) => {

@@ -4,9 +4,9 @@ const fs = require('fs-promise');
 const path = require('path');
 
 function template(req, filepath, subs) {
-    if(req.session.user) {
+    if(req.sessionuser) {
         subs = subs || {};
-        subs["<!--place-username-here-->"] = req.session.user.name;
+        subs["<!--place-username-here-->"] = req.sessionuser.name;
     }
 
     return fs.readFile(path.join("public_html", "content", filepath), { encoding: "utf8" })

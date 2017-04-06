@@ -5,9 +5,10 @@ const Database = require("./db.js");
 const fs = require('fs-promise');
 const path = require('path');
 
-function Challenge(dir) {
+function Challenge(name, dir) {
     this._data = JSON.parse(fs.readFileSync(path.join(dir, "info.json"), { encoding: "utf8" }));
     this.rules = this._data.rules;
+    this.name = name;
 }
 
 Challenge.prototype.isSubmissionTime = function() {
@@ -27,7 +28,7 @@ function Common(config) {
 
     var challenges = JSON.parse(fs.readFileSync(path.join(config.paths.challenges, "index.json")));
     if(challenges[0]) {
-        this.challenge = new Challenge(path.join(config.paths.challenges, challenges[0]));
+        this.challenge = new Challenge(challenges[0], path.join(config.paths.challenges, challenges[0]));
     }
 }
 
