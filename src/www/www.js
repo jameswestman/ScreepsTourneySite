@@ -76,13 +76,13 @@ module.exports = function(common) {
     });
 
     app.get("/challenges", (req, res) => {
-        template(req, path.join("challenges", "index.htm")).then(file => app.type("text/html").send(file));
+        template(req, path.join("challenges", "index.htm")).then(file => res.type("text/html").send(file));
     });
     app.get("/challenges/:challenge", (req, res) => {
-        template(req, path.join("challenges", req.params.challenge, "index.htm")).then(file => app.type("text/html").send(file));
+        template(req, path.join("challenges", req.params.challenge, "index.htm")).then(file => res.type("text/html").send(file));
     });
     app.get("/challenges/:challenge/rules", (req, res) => {
-        template(req, path.join("challenges", req.params.challenge, "rules.htm")).then(app.type("text/html").send(file));
+        template(req, path.join("challenges", req.params.challenge, "rules.htm")).then(res.type("text/html").send(file));
     });
 
     app.use((err, req, res, next) => {
