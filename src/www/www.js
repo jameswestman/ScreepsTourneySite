@@ -85,7 +85,8 @@ module.exports = function(common) {
                 .then(token =>
                     template(req, "submitcode.htm", {
                         "<!--place-csrf-token-here-->": token,
-                        "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules)
+                        "<!--place-challenge-rules-here-->": JSON.stringify(common.challenge.rules),
+                        "<!--place-challenge-name-here-->": common.challenge.name
                     })
                 ).then(file =>
                     res.type("text/html").send(file)
@@ -95,7 +96,7 @@ module.exports = function(common) {
             }
         }
     });
-    app.post("/code-submit-process", upload.array("files", 100), (req, res) => {
+    app.post("/code-submit-process", upload.array("code", 100), (req, res) => {
         if(!req.sessionuser) {
             res.redirect("/login");
         }
@@ -151,7 +152,7 @@ module.exports = function(common) {
         template(req, path.join("challenges", req.params.challenge, "index.htm")).then(file => res.type("text/html").send(file));
     });
     app.get("/challenges/:challenge/rules", (req, res) => {
-        template(req, path.join("challenges", req.params.challenge, "rules.htm")).then(res.type("text/html").send(file));
+        template(req, path.join("challenges", req.params.challenge, "rules.htm")).then(file => res.type("text/html").send(file));
     });
 
     app.use((err, req, res, next) => {

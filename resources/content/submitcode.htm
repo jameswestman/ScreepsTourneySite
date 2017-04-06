@@ -1,11 +1,11 @@
 <!--title Submit Code-->
 
-<h1>Submit Code</h1>
+<h1>Submit Code: <!--place-challenge-name-here--></h1>
 
 <form method="post" action="/code-submit-process" enctype="multipart/form-data">
     <input type="hidden" name="CSRFToken" value="<!--place-csrf-token-here-->" />
     <h2>Upload Code</h2>
-    <input type="file" name="files[]" id="files" multiple/>
+    <input type="file" name="code" id="files" multiple/>
 
     <section id="mineral-select-wrapper" style="display: none">
         <h2>Choose Mineral</h2>

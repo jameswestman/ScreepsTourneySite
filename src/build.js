@@ -42,13 +42,15 @@ function readFile(file, bin) {
  * Renders files from resources into browser-compatible formats. Does not
  * include minification.
  */
-function render(file) {
+function render(file, suffix) {
     console.log("Rendering " + file);
+
+    let suf = suffix ? suffix : "";
 
     if(file.endsWith(".md")) {
         // render to HTML
         return readFile(file)
-        .then(contents => ({ ext: "htm", data:  wrapTemplate(markdown.render(contents)) }));
+        .then(contents => ({ ext: "htm", data:  wrapTemplate(markdown.render(contents) + suf) }));
     } else if(file.endsWith(".sass") || file.endsWith(".scss")) {
         // compile SASS and SCSS files (this project mostly uses SASS, but support SCSS just in case)
         return new Promise((res, rej) => {
@@ -69,7 +71,7 @@ function render(file) {
         });
     } else if(file.endsWith(".htm") || file.endsWith(".html")) {
         return readFile(file)
-        .then(contents => ({ ext: "htm", data: wrapTemplate(contents) }));
+        .then(contents => ({ ext: "htm", data: wrapTemplate(contents + suf) }));
     } else {
         // read file, then return it without processing. Make sure it is read without text encoding, as this will corrupt images.
         return readFile(file, true)
@@ -119,7 +121,7 @@ for(let challenge of challenges) {
     .catch(e => {
         if(e.code !== "EEXIST") throw e;
     })
-    .then(() => render(path.join(config.paths.challenges, challenge, "index.md"))) // render the index file
+    .then(() => render(path.join(config.paths.challenges, challenge, "index.md"), `<div><a href="/challenges/${ challenge }/rules">Official Rules</a></div>`)) // render the index file
     .then(contents => {
         fs.writeFile(path.join("public_html", "content", "challenges", challenge, "index.htm"), contents.data);
     })
