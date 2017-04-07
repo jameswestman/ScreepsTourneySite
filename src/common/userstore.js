@@ -26,21 +26,7 @@ User.prototype.enter = function(entry) {
 
     if(!common.challenge) throw "No challenge is going on";
 
-    // make sure all the directories have been created
-    return fs.mkdir(path.join(common.config.paths.data, "challenges"))
-    .catch(err => {
-        if(err.code !== "EEXIST") throw err;
-    }).then(() => fs.mkdir(path.join(common.config.paths.data, "challenges", common.challenge.name)) )
-    .catch(err => {
-        if(err.code !== "EEXIST") throw err;
-    }).then(() => fs.mkdir(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries")) )
-    .catch(err => {
-        if(err.code !== "EEXIST") throw err;
-    })
-    // write the submission file
-    .then(() => {
-        fs.writeFile(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries", this.id + ".json"), JSON.stringify(entry))
-    });
+    fs.writeFile(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries", this.id + ".json"), JSON.stringify(entry));
 };
 
 function Userstore(common, data) {
