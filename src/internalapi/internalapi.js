@@ -9,7 +9,10 @@ module.exports = function(common) {
 
     app.use((req, res, next) => {
         if(req.header("Authorization")) {
-            bcrypt.compare(req.header("Authorization"), common.config.apiPassword)
+            var encoded = req.header("Authorization").split(":")[1];
+            var decoded = new Buffer(encoded, "base64").toString("utf8");
+
+            bcrypt.compare(decoded, common.config.apiPassword)
             .then(valid => {
                 if(valid) {
                     next();
