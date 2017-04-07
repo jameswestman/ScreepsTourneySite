@@ -4,6 +4,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 
+const done = JSON.stringify({done: true});
+
 module.exports = function(common) {
     var app = new express.Router();
 
@@ -17,11 +19,11 @@ module.exports = function(common) {
                 if(valid) {
                     next();
                 } else {
-                    res.status(401).send("401 unauthorized");
+                    res.status(401).send(JSON.stringify({ err: "401 unauthorized" }));
                 }
             });
         } else {
-            res.status(401).send("401 unauthorized");
+            res.status(401).send(JSON.stringify({ err: "401 unauthorized" }));
         }
     });
 
@@ -31,9 +33,10 @@ module.exports = function(common) {
 
     app.use((req, res, next) => {
         if(!common.challenge) {
-            res.status(503).send("404 file not available");
+            res.status(404).send(JSON.stringify({err: "404 file unavailable"}));
+        } else {
+            next();
         }
-        next();
     });
 
     app.get("/challenge", (req, res) => {
@@ -50,21 +53,21 @@ module.exports = function(common) {
 
     app.put("/status", (req, res) => {
         common.updateProcessorStatus(req.body.status, req.body.progress);
-        res.send("done");
+        res.send(done);
     });
     app.put("/tickrate", (req, res) => {
         common.updateTickrate(req.body.tickrate);
-        res.send("done");
+        res.send(done);
     });
 
     app.post("/room-history", (req, res) => {
         common.challenge.postRoomHistory(req.body);
-        res.send("done");
+        res.send(done);
     });
 
     app.post("/notification", (req, res) => {
         common.challenge.addNotification(req.body.time, req.body.eventData);
-        res.send("done");
+        res.send(done);
     });
 
     return app;
