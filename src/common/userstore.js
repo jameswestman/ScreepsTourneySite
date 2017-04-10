@@ -26,7 +26,7 @@ User.prototype.enter = function(entry) {
 
     if(!common.challenge) throw "No challenge is going on";
 
-    fs.writeFile(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries", this.id + ".json"), JSON.stringify(entry));
+    return fs.writeFile(path.join(common.config.paths.data, "challenges", common.challenge.name, "entries", this.id + ".json"), JSON.stringify(entry));
 };
 
 function Userstore(common, data) {
