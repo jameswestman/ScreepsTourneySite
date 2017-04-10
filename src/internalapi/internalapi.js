@@ -11,7 +11,10 @@ module.exports = function(common) {
 
     app.use((req, res, next) => {
         if(req.header("Authorization")) {
-            bcrypt.compare(req.header("Authorization"), common.config.apiPassword)
+            var auth = req.header("Authorization").split(" ")[1]
+            var pass = Buffer.from(auth, "base64").toString("utf8").split(":")[1]
+
+            bcrypt.compare(pass, common.config.apiPassword)
             .then(valid => {
                 if(valid) {
                     next();
