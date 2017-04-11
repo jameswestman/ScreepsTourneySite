@@ -75,17 +75,14 @@ Challenge.prototype.consumeRoomHistory = function(tick) {
     delete this._history[tick];
     return history;
 }
-Challenge.prototype.postRoomHistory = function(history) {
-    function writeHistoryFile(room, history) {
-        fs.writeFile(this.getPath(path.join("histories", room + ".json")), JSON.stringify(history));
-    }
+Challenge.prototype.postRoomHistory = function(room) {
+    // write room history to file
+    fs.writeFile(this.getPath(path.join("histories", room + ".json")), JSON.stringify(history));
 
-    for(let room of history) {
-        writeHistoryFile(room.room, room);
-        for(let tick in room.ticks) {
-            if(!this._history[tick]) this._history[tick] = {};
-            this._history[tick][room.room] = room.ticks[tick];
-        }
+    // add data to history list
+    for(let tick in room.ticks) {
+        if(!this._history[tick]) this._history[tick] = {};
+        this._history[tick][room.room] = room.ticks[tick];
     }
 };
 // Returns an array of notifications from the given tick
