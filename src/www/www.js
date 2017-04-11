@@ -125,7 +125,8 @@ module.exports = function(common) {
 
         var entry = {
             code: code,
-            settings: settings
+            settings: settings,
+            username: req.sessionuser.name
         }
 
         req.sessionuser.enter(entry)
