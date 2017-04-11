@@ -107,7 +107,7 @@ module.exports = function(common) {
         // create JSON array of file contents
         var code = {};
         for(let file of req.files) {
-            code[file.originalname] = file.buffer.toString("utf8");
+            code[file.originalname.replace(/\.js$/, "")] = file.buffer.toString("utf8");
         }
 
         // now get the rest of the fields
