@@ -77,7 +77,7 @@ Challenge.prototype.consumeRoomHistory = function(tick) {
 }
 Challenge.prototype.postRoomHistory = function(room) {
     // write room history to file
-    fs.writeFile(this.getPath(path.join("histories", room + ".json")), JSON.stringify(room));
+    fs.writeFile(this.getPath(path.join("histories", room.room + ".json")), JSON.stringify(room));
 
     // add data to history list
     for(let tick in room.ticks) {
