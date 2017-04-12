@@ -4,6 +4,11 @@ function AuthModule(common) {
     this._common = common;
 }
 
+AuthModule.prototype.logout = function(req, res) {
+    delete req.session.userid
+    res.redirect("/")
+};
+
 AuthModule.prototype.signup = function(req, res) {
     this._common.db.users.registerUser(req.body)
     .then(user => {

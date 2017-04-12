@@ -69,6 +69,9 @@ module.exports = function(common) {
     app.post("/login-process", (req, res) => {
         auth.login(req, res)
     });
+    app.get("/logout", (req, res) => {
+        auth.logout(req, res)
+    });
     app.get("/signup", (req, res) => {
         template(req, "signup.htm").then(file => res.type("text/html").send(file));
     });
