@@ -18,8 +18,8 @@ module.exports = function(common) {
     var upload = multer({
         storage: storage,
         limits: {
-            fileSize: 100000,
-            files: 100
+            fileSize: 1024*1024,
+            files: 128
         },
         fileFilter: (req, file, cb) => {
             if(!file.originalname.endsWith(".js")) cb(null, false);
