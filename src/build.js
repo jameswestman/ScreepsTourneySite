@@ -8,6 +8,7 @@ const path = require('path');
 const nodeminify = require('node-minify');
 const markdownit = require('markdown-it');
 const os = require('os');
+const webpack = require('webpack');
 
 var markdown = new markdownit();
 
@@ -84,7 +85,7 @@ function processDir(dir) {
 
     var files;
 
-    fs.readdir(path.join("resources", dir))
+    return fs.readdir(path.join("resources", dir))
     .then(fileList => files = fileList)
     .then(() => fs.mkdir(path.join("public_html", dir))
         .catch(e => {
@@ -109,35 +110,42 @@ function processDir(dir) {
     }).catch(e => console.log(e));
 }
 
-processDir("");
+processDir("content")
+.then(() => processDir("static"))
+.then(() => processDir("errors"))
+.then(() => {
+    // now process challenges
+    var challenges = require(path.join(__dirname, "..", config.paths.challenges, "index.json"));
+    for(let challenge of challenges) {
+        console.log("Processing challenge " + challenge)
 
-// now process challenges
-var challenges = require(path.join(__dirname, "..", config.paths.challenges, "index.json"));
-for(let challenge of challenges) {
-    console.log("Processing challenge " + challenge)
+        // make directory if needed
+        fs.mkdir(path.join("public_html", "content", "challenges", challenge))
+        .catch(e => {
+            if(e.code !== "EEXIST") throw e;
+        })
+        .then(() => render(path.join(config.paths.challenges, challenge, "index.md"), `<div><a href="/challenges/${ challenge }/rules">Official Rules</a></div>`)) // render the index file
+        .then(contents => {
+            fs.writeFile(path.join("public_html", "content", "challenges", challenge, "index.htm"), contents.data);
+        })
+        .then(() => render(path.join(config.paths.challenges, challenge, "rules.md"))) // now render the rules file
+        .then(contents => {
+            fs.writeFile(path.join("public_html", "content", "challenges", challenge, "rules.htm"), contents.data);
+        });
+    }
 
-    // make directory if needed
-    fs.mkdir(path.join("public_html", "content", "challenges", challenge))
-    .catch(e => {
-        if(e.code !== "EEXIST") throw e;
-    })
-    .then(() => render(path.join(config.paths.challenges, challenge, "index.md"), `<div><a href="/challenges/${ challenge }/rules">Official Rules</a></div>`)) // render the index file
-    .then(contents => {
-        fs.writeFile(path.join("public_html", "content", "challenges", challenge, "index.htm"), contents.data);
-    })
-    .then(() => render(path.join(config.paths.challenges, challenge, "rules.md"))) // now render the rules file
-    .then(contents => {
-        fs.writeFile(path.join("public_html", "content", "challenges", challenge, "rules.htm"), contents.data);
-    });
-}
+    // create an index file for the challenges, then render it
+    var challengeIndex =
+    `(!--title Previous Challenges--)
+    # Previous Challenges
+    Here's all the previous challenges and their results:` + os.EOL;
+    for(let challenge of challenges) {
+        challengeIndex += `- [${ challenge }](/challenges/${ challenge }/)`;
+    }
 
-// create an index file for the challenges, then render it
-var challengeIndex =
-`(!--title Previous Challenges--)
-# Previous Challenges
-Here's all the previous challenges and their results:` + os.EOL;
-for(let challenge of challenges) {
-    challengeIndex += `- [${ challenge }](/challenges/${ challenge }/)`;
-}
+    return fs.writeFile(path.join("public_html", "content", "challenges", "index.htm"), wrapTemplate(markdown.render(challengeIndex)));
+})
 
-fs.writeFile(path.join("public_html", "content", "challenges", "index.htm"), wrapTemplate(markdown.render(challengeIndex)));
+webpack(require("../resources/viewer/webpack.config.js"), (err, stats) => {
+    fs.createReadStream(path.join("resources", "viewer", "index.htm")).pipe(fs.createWriteStream(path.join("public_html", "viewer", "index.htm")));
+})
