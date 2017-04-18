@@ -35,9 +35,15 @@
     "node-minify": "^2.0.3",
     "node-sass": "^4.5.2",
     "send": "^0.15.1",
-    "vhost": "^3.0.2"
+    "vhost": "^3.0.2",
+    "vue": "^2.2.6",
+    "vue-loader": "^11.3.4",
+    "vue-material": "^0.7.1",
+    "vue-router": "^2.4.0",
+    "vue-template-compiler": "^2.2.6"
   },
   "devDependencies": {
-    "live-server": "^1.2.0"
+    "live-server": "^1.2.0",
+    "webpack": "^2.4.1"
   }
 }
