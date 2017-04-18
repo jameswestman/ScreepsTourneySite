@@ -6,7 +6,9 @@ const bodyParser = require('body-parser');
 
 const done = JSON.stringify({done: true});
 
-module.exports = function(common) {
+module.exports = function InternalAPI(common) {
+    this._processor = undefined
+
     var app = new express.Router();
 
     app.use((req, res, next) => {
@@ -31,6 +33,21 @@ module.exports = function(common) {
         inflate: true
     }))
 
+    app.put("/status", (req, res) => {
+        if(!this._processor) this._processor = new (require("./processor"))(common)
+        this._processor.setStatus(req.body.status, parseInt(req.body.progress))
+
+        if(req.body.status.startsWith("~START")) {
+            this._processor.setStartTime(parseInt(req.body.time))
+            this._processor.start()
+        } else if(req.body.status.startsWith("~FINISH")) {
+            this._processor.stop()
+            delete this._processor
+        }
+
+        res.send(done);
+    })
+
     app.use((req, res, next) => {
         if(!common.challenge) {
             res.status(404).send(JSON.stringify({err: "404 file unavailable"}));
@@ -50,19 +67,18 @@ module.exports = function(common) {
         common.challenge.getSubmissionRaw(req.params.id)
         .then(submission => res.send(submission));
     });
-
-    app.put("/status", (req, res) => {
-        common.updateProcessorStatus(req.body.status, req.body.progress);
-        res.send(done);
-    });
     app.put("/tickrate", (req, res) => {
         common.updateTickrate(req.body.tickrate);
         res.send(done);
     });
 
     app.post("/room-history", (req, res) => {
-        common.challenge.postRoomHistory(req.body);
-        res.send(done);
+        if(!this._processor) {
+            res.status(404).send(JSON.stringify({err: "404 file unavailable"}))
+        } else {
+            this._processor.addHistory(req.body)
+            res.send(done)
+        }
     });
 
     app.post("/notification", (req, res) => {

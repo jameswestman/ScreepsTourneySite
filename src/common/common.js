@@ -25,6 +25,9 @@ Challenge.prototype.isSubmissionTime = function() {
 Challenge.prototype.getInfo = function() {
     return JSON.stringify(this._data);
 };
+Challenge.prototype.writeEvent = function(time, room, event, data) {
+    fs.appendFile(path.join(this.getPath(), "events.log"), `${ time } ${ room } ${ event } ${ JSON.stringify(data) }\n`)
+};
 
 /*
  * Create the directory structure for the challenge.
@@ -75,15 +78,9 @@ Challenge.prototype.consumeRoomHistory = function(tick) {
     delete this._history[tick];
     return history;
 }
-Challenge.prototype.postRoomHistory = function(room) {
+Challenge.prototype.saveRoomHistory = function(room) {
     // write room history to file
     fs.writeFile(this.getPath(path.join("histories", `${ room.room }-${ room.base }.json`)), JSON.stringify(room));
-
-    // add data to history list
-    for(let tick in room.ticks) {
-        if(!this._history[tick]) this._history[tick] = {};
-        this._history[tick][room.room] = room.ticks[tick];
-    }
 };
 // Returns an array of notifications from the given tick
 Challenge.prototype.consumeNotifications = function(tick) {
@@ -104,8 +101,10 @@ function Common(config) {
     // The config file
     this.config = config;
 
-    // used to send notifications between the internal API and the live viewer API
-    this.ev = new EventEmitter();
+    // general event emitter
+    this.ev = new EventEmitter()
+    // used only for messages the client can subscribe to
+    this.clientEV = new EventEmitter()
 
     this.db = new Database(this, config.paths.data);
 
@@ -115,15 +114,6 @@ function Common(config) {
     }
 }
 
-Common.prototype.updateProcessorStatus = function(status, progress) {
-    this.ev.emit("status", status, progress);
-    var statusObj = {
-        status: status
-    }
-    if(progress) statusObj.progress = progress;
-    this.processorStatus = statusObj;
-    console.log("New processor status: " + status)
-};
 Common.prototype.updateTickrate = function(tickrate) {
     this.tickrate = tickrate;
     this.ev.emit("tickrate", tickrate);

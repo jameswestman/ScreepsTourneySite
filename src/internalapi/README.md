@@ -12,6 +12,7 @@ Requests are authenticated using the Authorization header. The header should con
 - **PUT /status** Sets the status string. Before the processor sets a status string, it equals "Waiting for processor to connect". The processor should update this frequently while loading
     - **status** The status string
     - **progress** _optional_ The progress, as an integer from 0 to 999
+    - **time** _if status is "~START"_ The game tick on which the processor starts
 - **PUT /tickrate** Sets the tickrate, in seconds per hundred ticks. This is necessary because the webserver is delayed by 100 ticks, because the processor only sends data every 100 ticks. The webserver attempts to stay at the same pace. The processor may choose to update this endpoint at any time
     - **tickrate** The tickrate.
 - **POST /room-history/:id** Post a room history for 100 ticks. Should be a JSON object
