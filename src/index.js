@@ -30,7 +30,7 @@ module.exports = function(config, competition) {
     app.use(vhost(`www.${ config.host }`, require("./www/www.js")(common)));
     app.use(vhost(`api.${ config.host }`, require("./api/api.js")(common)));
     app.use(vhost(`viewer.${ config.host }`, require("./viewer/viewer.js")(common)));
-    app.use(vhost(`internalapi.${ config.host }`, require("./internalapi/internalapi.js")(common)));
+    app.use(vhost(`internalapi.${ config.host }`, new (require("./internalapi/internalapi.js"))(common)));
     app.use(vhost(config.consolehost, require("./console/console.js")(common)));
 
     return app;
